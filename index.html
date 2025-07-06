@@ -1,0 +1,104 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>LED Viewing Distance Calculator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: Arial, sans-serif; background: #f9f9f9; padding: 20px; }
+    .container { max-width: 700px; margin: auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    h2 { color: #4F46E5; text-align: center; }
+    label { font-weight: bold; display: block; margin-top: 15px; }
+    input, select { width: 100%; padding: 10px; margin-top: 6px; border: 1px solid #ccc; border-radius: 6px; }
+    button { background: #4F46E5; color: white; border: none; padding: 12px; margin-top: 20px; width: 100%; border-radius: 6px; cursor: pointer; }
+    #result { background: #EEF2FF; padding: 15px; margin-top: 20px; border-radius: 8px; display: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <select id="lang" style="margin-bottom: 20px;">
+      <option value="en">English</option>
+      <option value="es">Español</option>
+      <option value="de">Deutsch</option>
+    </select>
+
+    <h2 id="title">LED Viewing Distance Calculator</h2>
+
+    <label id="widthLabel">Screen Width (m)</label>
+    <input type="number" id="width" placeholder="e.g. 3.5">
+
+    <label id="heightLabel">Screen Height (m)</label>
+    <input type="number" id="height" placeholder="e.g. 2">
+
+    <label id="pitchLabel">Pixel Pitch (mm)</label>
+    <input type="number" id="pitch" placeholder="e.g. 2.5">
+
+    <button onclick="calc()" id="calcBtn">Calculate</button>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const T = {
+      en: { title: "LED Viewing Distance Calculator", width: "Screen Width (m)", height: "Screen Height (m)", pitch: "Pixel Pitch (mm)", calc: "Calculate", min: "Minimum", rec: "Recommended", max: "Comfort-Max", dist: "Viewing Distance", res: "Suggested Resolution", ppd: "PPD (Pixels-per-Degree)" },
+      es: { title: "Calculadora de Distancia de Visualización", width: "Ancho de Pantalla (m)", height: "Altura de Pantalla (m)", pitch: "Pitch de Píxel (mm)", calc: "Calcular", min: "Mínima", rec: "Recomendada", max: "Máxima Confortable", dist: "Distancia de Visualización", res: "Resolución Sugerida", ppd: "PPD (Píxeles por Grado)" },
+      de: { title: "LED Betrachtungsabstand Rechner", width: "Bildschirmbreite (m)", height: "Bildschirmhöhe (m)", pitch: "Pixelabstand (mm)", calc: "Berechnen", min: "Minimum", rec: "Empfohlen", max: "Komfort-Max", dist: "Betrachtungsabstand", res: "Empfohlene Auflösung", ppd: "PPD (Pixel pro Grad)" }
+    };
+
+    const $ = id => document.getElementById(id);
+    let lang = 'en';
+
+    function renderText() {
+      const L = T[lang];
+      $("title").innerText = L.title;
+      $("title").textContent = L.title;
+      $("widthLabel").innerText = L.width;
+      $("heightLabel").innerText = L.height;
+      $("pitchLabel").innerText = L.pitch;
+      $("calcBtn").innerText = L.calc;
+      $("title").textContent = L.title;
+    }
+
+    $("lang").addEventListener("change", e => {
+      lang = e.target.value;
+      renderText();
+      $("result").style.display = "none";
+    });
+
+    function calc() {
+      const w = parseFloat($("width").value);
+      const h = parseFloat($("height").value);
+      const p = parseFloat($("pitch").value);
+      const res = $("result");
+
+      if (!(w && h && p)) {
+        res.style.display = "none";
+        return;
+      }
+
+      const resW = Math.round((w * 1000) / p);
+      const resH = Math.round((h * 1000) / p);
+      const min = p;
+      const rec = p * 2;
+      const max = p * 4;
+      const ppd = Math.round((resH / 2) / Math.tan((30 * Math.PI / 180) / 2) / rec);
+      const ft = m => m * 3.28084;
+      const rd = (n) => parseFloat(n.toFixed(1));
+      const L = T[lang];
+
+      res.innerHTML = `
+        <strong>${L.dist}</strong><br>
+        ${L.min}: ${rd(min)} m (${rd(ft(min))} ft)<br>
+        ${L.rec}: ${rd(rec)} m (${rd(ft(rec))} ft)<br>
+        ${L.max}: ${rd(max)} m (${rd(ft(max))} ft)<br><br>
+        <strong>${L.res}:</strong> ${resW} × ${resH} px<br>
+        <strong>${L.ppd}:</strong> ${ppd}
+      `;
+      res.style.display = "block";
+    }
+
+    renderText();
+  </script>
+</body>
+</html>
